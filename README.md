@@ -2,6 +2,8 @@
 
 A professional, AI-powered SQL query optimization tool designed for developers and DBAs. This tool uses LLMs (via OpenRouter) to analyze your SQL queries and provide structured, production-ready optimizations.
 
+**Live Demo: [https://bigknoxy.github.io/sqlOptimizer/](https://bigknoxy.github.io/sqlOptimizer/)**
+
 ![SQL Optimizer Pro Dashboard](screenshot.png)
 
 ## 🌟 Features
