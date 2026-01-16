@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQL Optimizer Pro | AI-Powered Query Optimization</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <!-- Prism.js for syntax highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --panel-bg: #161b22;
+            --border-color: #30363d;
+            --text-primary: #c9d1d9;
+            --text-secondary: #8b949e;
+            --accent-color: #2f81f7;
+            --accent-hover: #58a6ff;
+            --success-color: #238636;
+            --error-color: #f85149;
+            --font-main: 'Inter', system-ui, -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background-color: var(--panel-bg);
+            border-bottom: 1px solid var(--border-color);
+            z-index: 10;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: var(--text-primary);
+        }
+
+        .logo svg {
+            color: var(--accent-color);
+        }
+
+        .nav-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn-icon {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-icon:hover {
+            color: var(--text-primary);
+            background-color: var(--border-color);
+        }
+
+        /* Main Content */
+        main {
+            flex: 1;
+            display: flex;
+            padding: 1.5rem;
+            gap: 1.5rem;
+            overflow: hidden;
+        }
+
+        .panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            padding: 0.75rem 1.25rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+
+        .panel-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .panel-body {
+            flex: 1;
+            position: relative;
+            overflow: auto;
+        }
+
+        /* Editor Area */
+        #query-input {
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+            font-size: 0.95rem;
+            padding: 1.25rem;
+            resize: none;
+            outline: none;
+            white-space: pre;
+        }
+
+        /* Results Area */
+        #results-container {
+            padding: 1.25rem;
+        }
+
+        .result-section {
+            margin-bottom: 2rem;
+        }
+
+        .result-section h3 {
+            font-size: 1rem;
+            margin-bottom: 0.75rem;
+            color: var(--accent-hover);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .optimized-query-box {
+            background-color: #0d1117;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 1rem;
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            font-size: 0.75rem;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem 1.5rem;
+            background-color: var(--bg-color);
+            border-top: 1px solid var(--border-color);
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 0.6rem 1.25rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background-color: var(--accent-color);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .btn-secondary {
+            background-color: #21262d;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background-color: #30363d;
+        }
+
+        /* Modals */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            padding: 2rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .form-input {
+            width: 100%;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 0.75rem;
+            border-radius: 6px;
+            font-family: var(--font-mono);
+            font-size: 0.875rem;
+        }
+
+        /* Footer */
+        footer {
+            padding: 0.75rem 2rem;
+            background-color: var(--panel-bg);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .tech-stack {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .badge {
+            background-color: #21262d;
+            padding: 2px 8px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+        }
+
+        /* Loading State */
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(22, 27, 34, 0.8);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 5;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(47, 129, 247, 0.2);
+            border-top: 3px solid var(--accent-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            main {
+                flex-direction: column;
+                overflow-y: auto;
+            }
+
+            .panel {
+                min-height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path
+                    d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
+                </path>
+                <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                <line x1="12" y1="22.08" x2="12" y2="12"></line>
+            </svg>
+            SQL Optimizer Pro
+        </div>
+        <div class="nav-actions">
+            <button class="btn btn-secondary" onclick="loadSample()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+                Load Sample
+            </button>
+            <button class="btn-icon" id="settings-btn" title="Settings">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path
+                        d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                    </path>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <!-- Input Panel -->
+        <section class="panel">
+            <div class="panel-header">
+                <span class="panel-title">Original Query</span>
+                <select id="dialect-select" class="btn btn-secondary"
+                    style="padding: 0.2rem 0.5rem; font-size: 0.75rem;">
+                    <option value="PostgreSQL">PostgreSQL</option>
+                    <option value="MySQL">MySQL</option>
+                    <option value="SQL Server">SQL Server</option>
+                </select>
+            </div>
+            <div class="panel-body">
+                <textarea id="query-input" placeholder="-- Paste your SQL query here..."></textarea>
+            </div>
+        </section>
+
+        <!-- Output Panel -->
+        <section class="panel">
+            <div class="panel-header">
+                <span class="panel-title">Optimized Result</span>
+                <button class="btn btn-secondary" id="clear-btn"
+                    style="padding: 0.2rem 0.5rem; font-size: 0.75rem;">Clear All</button>
+            </div>
+            <div class="panel-body">
+                <div class="loading-overlay" id="loading-overlay">
+                    <div class="spinner"></div>
+                    <p>Analyzing and optimizing...</p>
+                </div>
+                <div id="results-container">
+                    <div id="api-warning-container"></div>
+                    <div class="placeholder-text"
+                        style="text-align: center; color: var(--text-secondary); margin-top: 4rem;">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1" style="margin-bottom: 1rem; opacity: 0.5;">
+                            <path
+                                d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.77 3.77z">
+                            </path>
+                        </svg>
+                        <p>Optimization analysis will appear here</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div class="controls">
+        <button class="btn btn-primary btn-lg" id="optimize-btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                <polyline points="17 6 23 6 23 12"></polyline>
+            </svg>
+            Optimize Query
+        </button>
+    </div>
+
+    <footer>
+        <div class="footer-info">
+            Built with LLM Intelligence &bull; Single-file Deployment
+        </div>
+        <div class="tech-stack">
+            <span class="badge">Devstral-2512</span>
+            <span class="badge">OpenRouter API</span>
+            <span class="badge">Vanilla JS</span>
+        </div>
+    </footer>
+
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settings-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title">Application Settings</h2>
+                <p style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.5rem;">Configure your API
+                    connection</p>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="api-key">OpenRouter API Key</label>
+                <input type="password" id="api-key" class="form-input" placeholder="sk-or-v1-...">
+                <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.5rem;">
+                    Key is stored locally in your browser. <a href="https://openrouter.ai/keys" target="_blank"
+                        style="color: var(--accent-color);">Get a free key here</a>.
+                </p>
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 1rem;">
+                <button class="btn btn-secondary" id="settings-cancel">Cancel</button>
+                <button class="btn btn-primary" id="settings-save">Save Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div class="modal-overlay" id="error-modal">
+        <div class="modal" style="border-top: 4px solid var(--error-color);">
+            <div class="modal-header">
+                <h2 class="modal-title" id="error-title"
+                    style="color: var(--error-color); display: flex; align-items: center; gap: 0.5rem;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    Optimization Error
+                </h2>
+            </div>
+            <div id="error-message" style="margin-bottom: 1.5rem; color: var(--text-primary);"></div>
+            <div id="error-details"
+                style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 6px; font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 2rem; max-height: 200px; overflow: auto; border: 1px solid var(--border-color); display: none;">
+            </div>
+            <div style="display: flex; justify-content: flex-end;">
+                <button class="btn btn-primary" onclick="hideError()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+    <script>
+        // Constants & State
+        const CONFIG = {
+            API_URL: 'https://openrouter.ai/api/v1/chat/completions',
+            MODEL: 'mistralai/devstral-2512:free',
+            STORAGE_KEY: 'sql_optimizer_api_key'
+        };
+
+        const state = {
+            isOptimizing: false,
+            apiKey: localStorage.getItem(CONFIG.STORAGE_KEY) || ''
+        };
+
+        // DOM Elements
+        const el = {
+            queryInput: document.getElementById('query-input'),
+            resultsContainer: document.getElementById('results-container'),
+            apiWarningContainer: document.getElementById('api-warning-container'),
+            optimizeBtn: document.getElementById('optimize-btn'),
+            clearBtn: document.getElementById('clear-btn'),
+            loadingOverlay: document.getElementById('loading-overlay'),
+            settingsBtn: document.getElementById('settings-btn'),
+            settingsModal: document.getElementById('settings-modal'),
+            settingsSave: document.getElementById('settings-save'),
+            settingsCancel: document.getElementById('settings-cancel'),
+            apiKeyInput: document.getElementById('api-key'),
+            dialectSelect: document.getElementById('dialect-select'),
+            errorModal: document.getElementById('error-modal'),
+            errorTitle: document.getElementById('error-title'),
+            errorMessage: document.getElementById('error-message'),
+            errorDetails: document.getElementById('error-details')
+        };
+
+        // Initialization
+        const init = () => {
+            el.apiKeyInput.value = state.apiKey;
+
+            // Event Listeners
+            el.optimizeBtn.addEventListener('click', optimizeQuery);
+            el.clearBtn.addEventListener('click', clearAll);
+            el.settingsBtn.addEventListener('click', () => el.settingsModal.style.display = 'flex');
+            el.settingsCancel.addEventListener('click', () => el.settingsModal.style.display = 'none');
+            el.settingsSave.addEventListener('click', saveSettings);
+
+            // Initial check for API key
+            checkApiKey();
+
+            // Log readiness
+            log('System initialized and ready.');
+        };
+
+        const checkApiKey = () => {
+            if (!state.apiKey) {
+                log('Warning: No API key found. Please configure in settings.');
+                showApiKeyWarning('Please configure your OpenRouter API key in settings before optimizing.');
+            } else {
+                el.apiWarningContainer.innerHTML = '';
+            }
+        };
+
+        // Core Functions
+        async function optimizeQuery() {
+            const query = el.queryInput.value.trim();
+            const dialect = el.dialectSelect.value;
+
+            if (state.isOptimizing) return;
+            if (!validateInput(query)) return;
+            if (!state.apiKey) {
+                el.settingsModal.style.display = 'flex';
+                return;
+            }
+
+            setLoading(true);
+            log(`Starting optimization for ${dialect} query...`);
+
+            try {
+                const response = await fetch(CONFIG.API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${state.apiKey}`,
+                        'Content-Type': 'application/json',
+                        'HTTP-Referer': 'https://github.com/sql-optimizer-pro',
+                        'X-Title': 'SQL Optimizer Pro'
+                    },
+                    body: JSON.stringify({
+                        model: CONFIG.MODEL,
+                        messages: [
+                            { role: 'system', content: getSystemPrompt(dialect) },
+                            { role: 'user', content: `Optimize this ${dialect} query:\n\n${query}` }
+                        ]
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    const errorMsg = data.error?.message || `API Error: ${response.status}`;
+                    const errorDetail = JSON.stringify(data, null, 2);
+                    throw { message: errorMsg, details: errorDetail, status: response.status };
+                }
+
+                log('API Response received successfully');
+                displayResults(data.choices[0].message.content);
+
+            } catch (err) {
+                console.error('Optimization Error:', err);
+                log(`Error: ${err.message || err}`);
+
+                if (err.status === 401) {
+                    showProError('Authentication Failed', 'Your API key is invalid or has expired. Please check your settings.', err.details);
+                } else if (err.status === 429) {
+                    showProError('Rate Limit Exceeded', 'You have sent too many requests. Please wait a moment before trying again.', err.details);
+                } else if (err.status === 402) {
+                    showProError('Insufficient Credits', 'Your OpenRouter account has insufficient credits for this request.', err.details);
+                } else {
+                    showProError('Optimization Failed', err.message || 'An unexpected error occurred while communicating with the API.', err.details || err.toString());
+                }
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        function validateInput(query) {
+            if (!query) {
+                showProError('Input Required', 'Please enter a SQL query to optimize.');
+                return false;
+            }
+
+            const sqlKeywords = ['SELECT', 'INSERT', 'UPDATE', 'DELETE', 'WITH', 'CREATE', 'ALTER', 'DROP'];
+            const hasKeyword = sqlKeywords.some(kw => query.toUpperCase().includes(kw));
+
+            if (!hasKeyword) {
+                showProError('Invalid Input', 'The text provided does not look like a valid SQL query. Please ensure it contains standard SQL keywords like SELECT, UPDATE, or DELETE.');
+                return false;
+            }
+
+            return true;
+        }
+
+        function displayResults(content) {
+            try {
+                // Remove potential markdown code blocks if the LLM adds them
+                const cleanJson = content.replace(/```json\n?|```/g, '').trim();
+                const result = JSON.parse(cleanJson);
+
+                el.resultsContainer.innerHTML = `
+                    <div class="result-section">
+                        <h3><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg> Optimized Query</h3>
+                        <div class="optimized-query-box">
+                            <pre><code class="language-sql">${escapeHtml(result.optimized_query)}</code></pre>
+                            <button class="btn btn-secondary btn-icon copy-btn" onclick="copyToClipboard(this, \`${escapeJs(result.optimized_query)}\`)">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="result-section">
+                        <h3><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg> Analysis & Improvements</h3>
+                        <ul style="padding-left: 1.5rem; color: var(--text-primary);">
+                            ${result.improvements.map(imp => `<li style="margin-bottom: 0.5rem;">${imp}</li>`).join('')}
+                        </ul>
+                    </div>
+
+                    <div class="result-section">
+                        <h3><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg> Recommended Indexes</h3>
+                        <div class="optimized-query-box">
+                            <pre><code class="language-sql">${escapeHtml(result.index_recommendations.join('\n\n'))}</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="result-section">
+                        <h3><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> Performance Tips</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;">${result.explanation}</p>
+                    </div>
+                `;
+
+                Prism.highlightAllUnder(el.resultsContainer);
+
+            } catch (err) {
+                console.error('Parsing Result Error:', err);
+                showProError('Response Parsing Error', 'The AI provided an optimization, but the response format was invalid and could not be displayed.', `Raw text: ${content.substring(0, 500)}...`);
+            }
+        }
+
+        // Utils
+        const getSystemPrompt = (dialect) => `
+You are a Senior Database Administrator and SQL Optimization Expert specializing in ${dialect}.
+Your task is to analyze user-provided SQL queries and provide a highly optimized version along with a technical breakdown.
+
+RESPONSE FORMAT:
+You MUST respond with a valid JSON object containing these exact keys:
+{
+  "optimized_query": "The fully optimized SQL query string",
+  "improvements": ["List item 1", "List item 2", ...],
+  "index_recommendations": ["CREATE INDEX ...", ...],
+  "explanation": "Brief technical explanation of why these changes improve performance"
+}
+
+OPTIMIZATION GOALS:
+- Reduce execution time and resource consumption.
+- Eliminate full table scans where possible.
+- Optimize JOIN orders and conditions.
+- Replace subqueries with JOINs or CTEs if more efficient.
+- Ensure proper use of WHERE clause predicates.
+- Avoid SELECT *; specify only needed columns.
+- Consider specific ${dialect} features and performance traps.
+
+Be precise, professional, and focus on production-ready improvements.
+        `;
+
+        function saveSettings() {
+            const newKey = el.apiKeyInput.value.trim();
+            state.apiKey = newKey;
+            localStorage.setItem(CONFIG.STORAGE_KEY, newKey);
+            el.settingsModal.style.display = 'none';
+            checkApiKey();
+            log('Settings saved.');
+        }
+
+        function clearAll() {
+            el.queryInput.value = '';
+            el.resultsContainer.innerHTML = `
+                <div class="placeholder-text" style="text-align: center; color: var(--text-secondary); margin-top: 4rem;">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="margin-bottom: 1rem; opacity: 0.5;"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.77 3.77z"></path></svg>
+                    <p>Optimization analysis will appear here</p>
+                </div>
+            `;
+            log('Workspace cleared.');
+        }
+
+        function loadSample() {
+            const sample = `SELECT orders.order_id, customers.customer_name, products.product_name, orders.order_date
+FROM orders, customers, products, order_items
+WHERE orders.customer_id = customers.customer_id
+AND orders.order_id = order_items.order_id
+AND order_items.product_id = products.product_id
+AND orders.status = 'COMPLETED'
+AND customers.country = 'USA'
+AND products.category IN (SELECT category_name FROM product_categories WHERE is_active = 1)
+ORDER BY orders.order_date DESC;`;
+
+            el.queryInput.value = sample;
+            log('Sample query loaded.');
+        }
+
+        function setLoading(isLoading) {
+            state.isOptimizing = isLoading;
+            el.loadingOverlay.style.display = isLoading ? 'flex' : 'none';
+            el.optimizeBtn.disabled = isLoading;
+            el.optimizeBtn.innerHTML = isLoading ?
+                '<span class="spinner" style="width:16px; height:16px; margin-bottom:0; margin-right:8px; border-width:2px;"></span> Optimizing...' :
+                '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg> Optimize Query';
+        }
+
+        function showProError(title, message, details = '') {
+            el.errorTitle.innerText = title;
+            el.errorMessage.innerText = message;
+
+            if (details) {
+                el.errorDetails.innerText = details;
+                el.errorDetails.style.display = 'block';
+            } else {
+                el.errorDetails.style.display = 'none';
+            }
+
+            el.errorModal.style.display = 'flex';
+        }
+
+        function hideError() {
+            el.errorModal.style.display = 'none';
+        }
+
+        function showApiKeyWarning(msg) {
+            el.apiWarningContainer.innerHTML = `
+                <div style="background-color: rgba(248, 81, 73, 0.1); border: 1px solid var(--error-color); color: var(--error-color); padding: 1rem; border-radius: 6px; margin: 1rem;">
+                    <strong>Setup Required:</strong> ${msg}
+                </div>
+            `;
+        }
+
+        function log(msg) {
+            const time = new Date().toLocaleTimeString();
+            console.log(`[${time}] SQL Optimizer: ${msg}`);
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function escapeJs(text) {
+            return text.replace(/`/g, '\\`').replace(/\$/g, '\\$');
+        }
+
+        async function copyToClipboard(btn, text) {
+            try {
+                await navigator.clipboard.writeText(text);
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+                setTimeout(() => btn.innerHTML = originalHtml, 2000);
+            } catch (err) {
+                console.error('Copy failed:', err);
+            }
+        }
+
+        // Run Init
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+
+</html>
